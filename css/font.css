@@ -1,12 +1,12 @@
 @font-face {
     font-family: 'Noto Serif SC';		/*字体名称*/
-    src: url('source/fonts/Noto_Serif_SC/NotoSerifSC-Regular.otf') format('truetype');	/*字体路径*/
+    src: url('../../../../public/fonts/Noto_Serif_SC/NotoSerifSC-Regular.otf') format('truetype');	/*字体路径*/
     font-display: swap;
 }
   
 @font-face {
     font-family: 'Noto Serif SC Bold';		/*字体名称*/
-    src: url('source/fonts/Noto_Serif_SC/NotoSerifSC-Bold.otf') format('truetype');
+    src: url('/fonts/Noto_Serif_SC/NotoSerifSC-Bold.otf') format('truetype');
     font-display: swap;
 }
 body {
