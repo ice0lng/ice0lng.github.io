@@ -2,12 +2,14 @@
     font-family: 'Noto Serif SC';		/*字体名称*/
     src: url('../../../../public/fonts/Noto_Serif_SC/NotoSerifSC-Regular.otf') format('truetype');	/*字体路径*/
     font-display: swap;
+	font-size: 24px;
 }
   
 @font-face {
     font-family: 'Noto Serif SC Bold';		/*字体名称*/
     src: url('/fonts/Noto_Serif_SC/NotoSerifSC-Bold.otf') format('truetype');
     font-display: swap;
+	font-size: 24px;
 }
 body {
     font-family: 'Noto Serif SC Bold','Noto Serif SC';
